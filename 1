@@ -1,0 +1,69 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// 定义路线结构体
+struct Route {
+    int id;
+    string name;
+};
+
+// 冲突矩阵 (13x13)，0表示不冲突，1表示冲突
+int conflictMatrix[13][13] = {
+    //A->B A->C A->D B->A B->C B->D B->E D->A D->B D->E E->A E->B E->C
+    {  0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0,   1,   0 }, // A->B
+    {  1,   0,   1,   1,   0,   1,   1,   1,   1,   1,   0,   0,   1 }, // A->C
+    {  1,   1,   0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0 }, // A->D
+    {  0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0,   1,   1 }, // B->A
+    {  1,   0,   1,   1,   0,   1,   1,   1,   1,   1,   0,   0,   0 }, // B->C
+    {  1,   1,   0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0 }, // B->D
+    {  1,   1,   1,   1,   1,   1,   0,   1,   1,   1,   0,   0,   0 }, // B->E
+    {  0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0,   1,   1 }, // D->A
+    {  1,   1,   1,   1,   1,   1,   1,   1,   0,   1,   0,   0,   0 }, // D->B
+    {  1,   1,   0,   1,   1,   0,   1,   1,   1,   0,   1,   1,   0 }, // D->E
+    {  0,   0,   1,   0,   0,   1,   0,   0,   0,   1,   0,   1,   1 }, // E->A
+    {  1,   0,   1,   1,   0,   1,   0,   1,   0,   1,   1,   0,   1 }, // E->B
+    {  0,   1,   0,   1,   0,   0,   0,   1,   0,   0,   1,   1,   0 }  // E->C
+};
+
+int main() {
+    // 初始化13条路线
+    vector<Route> routes = {
+        {0, "A->B"}, {1, "A->C"}, {2, "A->D"}, 
+        {3, "B->A"}, {4, "B->C"}, {5, "B->D"}, {6, "B->E"},
+        {7, "D->A"}, {8, "D->B"}, {9, "D->E"},
+        {10, "E->A"}, {11, "E->B"}, {12, "E->C"}
+    };
+
+    int numPhases = 0;
+    vector<int> phaseOfRoute(13, -1); 
+
+    // 贪心算法分配相位
+    for (int i = 0; i < routes.size(); ++i) {
+        vector<bool> available(13, true); 
+        for (int j = 0; j < i; ++j) {
+            if (conflictMatrix[i][j] == 1) {
+                available[phaseOfRoute[j]] = false;
+            }
+        }
+        int assignedPhase = 0;
+        while (!available[assignedPhase]) {
+            assignedPhase++;
+        }
+        phaseOfRoute[i] = assignedPhase;
+        if (assignedPhase >= numPhases) {
+            numPhases = assignedPhase + 1;
+        }
+    }
+
+    // 输出结果
+    for (int p = 0; p < numPhases; ++p) {
+        for (int i = 0; i < routes.size(); ++i) {
+            if (phaseOfRoute[i] == p) {
+                cout << routes[i].name << "  ";
+            }
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
